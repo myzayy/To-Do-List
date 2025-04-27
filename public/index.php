@@ -1,7 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <!-- Header -->
-<?php include 'parts/header.php'; ?>
+<?php
+
+// Enable autoloader
+require_once __DIR__ . '/../app/Core/Autoloader.php';
+
+use App\Core\Autoloader;
+use App\Models\Task;
+
+Autoloader::register();
+
+// test
+echo "Autoload works!";
+
+// Create an object of the Task class
+$task = new Task();
+
+include 'parts/header.php'; ?>
 
     <body>
         
