@@ -16,5 +16,5 @@ if ($conn->connect_error) {
 }
 
 // connection close
-$conn->close();
-?>
+// $conn->close();
+// ?>
