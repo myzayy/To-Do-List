@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'config/config.php';
 
 if (isset($_SESSION['user_id'])) {
     header("Location: index.php"); // If you are already logged in, go to the main page
@@ -81,9 +82,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php include 'parts/footer.php'; // footer ?>
     </div>
 
-    <script src="js/jquery-1.11.3.min.js"></script>
-    <script src="https://www.atlasestateagents.co.uk/javascript/tether.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
+    <script src="<?php echo BASE_PATH; ?>js/jquery-1.11.3.min.js"></script>
+    <script src="https://www.atlasestateagents.co.uk/javascript/tether.min.js"></script> 
+    <script src="<?php echo BASE_PATH; ?>js/bootstrap.min.js"></script>
+    <script src="<?php echo BASE_PATH; ?>js/jquery.magnific-popup.min.js"></script>
     <script>
         $(window).on('load', function(){
             $('body').addClass('loaded');

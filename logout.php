@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'config/config.php';
 
 // Deleting all session variables
 $_SESSION = array();

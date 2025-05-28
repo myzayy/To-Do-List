@@ -1,6 +1,6 @@
 <?php
 // parts/header.php
-
+// This file assumes that config/config.php (with BASE_PATH)
 ?>
 <head>
     <meta charset="utf-8">
@@ -8,12 +8,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Upper HTML Website Template</title>
-    
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400">
-    <link rel="stylesheet" href="font-awesome-4.5.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/magnific-popup.css">
-    <link rel="stylesheet" href="css/templatemo-style.css">
+    
+    <link rel="stylesheet" href="<?php echo BASE_PATH; ?>font-awesome-4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="<?php echo BASE_PATH; ?>css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo BASE_PATH; ?>css/magnific-popup.css">
+    <link rel="stylesheet" href="<?php echo BASE_PATH; ?>css/templatemo-style.css">
+
 
     <style>
         /* === Початок ВБУДОВАНИХ стилів для виправлення відступів === */

@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'config/config.php';
 $contact_message_status = ''; // Для повідомлень про відправку форми
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['contact_name'])) {
@@ -66,10 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['contact_name'])) {
         <?php include 'parts/footer.php'; ?>
     </div>
 
-    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="<?php echo BASE_PATH; ?>js/jquery-1.11.3.min.js"></script>
     <script src="https://www.atlasestateagents.co.uk/javascript/tether.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.magnific-popup.min.js"></script>
+    <script src="<?php echo BASE_PATH; ?>js/bootstrap.min.js"></script>
+    <script src="<?php echo BASE_PATH; ?>js/jquery.magnific-popup.min.js"></script>
     <script>
         var map = '';
         var center;
@@ -96,9 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['contact_name'])) {
         function loadGoogleMap() {
             var script = document.createElement('script');
             script.type = 'text/javascript';
-            // ВАЖЛИВО: Для Google Maps потрібен API ключ. Додай його в URL:
-            // script.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&v=3.exp&sensor=false&callback=initialize';
-            // Без ключа карта може не працювати або працювати з обмеженнями.
+            
             script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&callback=initialize';
             document.body.appendChild(script);
         }

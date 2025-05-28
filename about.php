@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'config/config.php';
 ?>
 <!DOCTYPE html>
 <html lang="uk">
@@ -43,13 +44,13 @@ session_start();
         <?php include 'parts/footer.php'; ?>
     </div>
 
-    <script src="js/jquery-1.11.3.min.js"></script>
+   <script src="<?php echo BASE_PATH; ?>js/jquery-1.11.3.min.js"></script>
     <script src="https://www.atlasestateagents.co.uk/javascript/tether.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.magnific-popup.min.js"></script>
+    <script src="<?php echo BASE_PATH; ?>js/bootstrap.min.js"></script>
+    <script src="<?php echo BASE_PATH; ?>js/jquery.magnific-popup.min.js"></script>
     <script>
         $(window).on('load', function(){
-            $('body').addClass('loaded');
+            $('body').addClass('loaded'); // Preloader
 
             $('#tmNavbar .nav-link').on('click', function(){
                 if ($('.navbar-toggler').is(':visible') && $('#tmNavbar').hasClass('show')) {
