@@ -43,6 +43,9 @@ if (strpos($relative_script_path, '/') !== 0) {
                     </li>
 
                     <?php if (isset($_SESSION['user_id'])): // User is logged in ?>
+                        <li class="nav-item <?php echo ($current_page_filename == 'tasks.php' ? 'active selected' : ''); ?>">
+                            <a class="nav-link" href="<?php echo BASE_PATH; ?>tasks.php">My Tasks</a>
+                        </li>
                         <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): // User is an admin ?>
                             <?php
                                 // Check if the current page is the admin panel's index.php
