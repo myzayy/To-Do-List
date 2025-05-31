@@ -12,6 +12,18 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id']; // Get current user's ID
 $task_action_message = ''; // For success/error messages from actions
 
+if (isset($_SESSION['task_action_success_message'])) {
+    $task_action_message .= '<div class="alert alert-success" role="alert">' . htmlspecialchars($_SESSION['task_action_success_message']) . '</div>';
+    unset($_SESSION['task_action_success_message']);
+}
+if (isset($_SESSION['task_action_error_message'])) {
+    $task_action_message .= '<div class="alert alert-danger" role="alert">' . htmlspecialchars($_SESSION['task_action_error_message']) . '</div>';
+    unset($_SESSION['task_action_error_message']);
+}
+if (isset($_SESSION['task_action_info_message'])) {
+    $task_action_message .= '<div class="alert alert-info" role="alert">' . htmlspecialchars($_SESSION['task_action_info_message']) . '</div>';
+    unset($_SESSION['task_action_info_message']);
+}
 // Handle GET actions: toggle status or delete task
 if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['action']) && isset($_GET['task_id'])) {
     $action = $_GET['action'];
