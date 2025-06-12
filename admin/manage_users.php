@@ -5,11 +5,47 @@ require_once '../config/connect.php'; // Database connection
 
 // Check if user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    // If not an admin, redirect to the main site index.
     header("Location: " . BASE_PATH . "index.php");
     exit();
 }
 
-// Display messages passed via session (from edit_user.php, etc.)
+$current_admin_id = $_SESSION['user_id']; // Get the logged-in admin's ID
+
+// Handle a delete user action
+if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['action']) && $_GET['action'] == 'delete_user' && isset($_GET['user_id'])) {
+    $user_to_delete_id = intval($_GET['user_id']);
+
+    // Critical check: prevent an admin from deleting their own account
+    if ($user_to_delete_id === $current_admin_id) {
+        $_SESSION['user_action_error_message'] = 'You cannot delete your own account.';
+    } else {
+        // Prepare and execute the delete statement
+        $stmt_delete = $conn->prepare("DELETE FROM users WHERE id = ?");
+        if ($stmt_delete) {
+            $stmt_delete->bind_param("i", $user_to_delete_id);
+            if ($stmt_delete->execute()) {
+                if ($stmt_delete->affected_rows > 0) {
+                    $_SESSION['user_action_success_message'] = 'User has been deleted successfully.';
+                } else {
+                    $_SESSION['user_action_error_message'] = 'User not found or could not be deleted.';
+                }
+            } else {
+                $_SESSION['user_action_error_message'] = 'Error executing deletion: ' . htmlspecialchars($stmt_delete->error);
+            }
+            $stmt_delete->close();
+        } else {
+            $_SESSION['user_action_error_message'] = 'Error preparing delete statement: ' . htmlspecialchars($conn->error);
+        }
+    }
+    
+    // Redirect back to the user list to show the message and refresh the list
+    header("Location: " . BASE_PATH . "admin/manage_users.php");
+    exit();
+}
+
+
+// Display messages passed via session (from edit_user.php or from delete action)
 $action_message = '';
 if (isset($_SESSION['user_action_success_message'])) {
     $action_message = '<div class="alert alert-success" role="alert">' . htmlspecialchars($_SESSION['user_action_success_message']) . '</div>';
@@ -37,8 +73,6 @@ if ($result) {
 } else {
     $user_list_error = "Error fetching users: " . htmlspecialchars($conn->error);
 }
-
-// $conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="uk">
@@ -93,10 +127,12 @@ if ($result) {
                                                 </td>
                                                 <td><?php echo date("Y-m-d H:i", strtotime($user['created_at'])); ?></td>
                                                 <td>
-                                                    <?php if ($_SESSION['user_id'] !== $user['id']): // Don't show action buttons for the admin's own account ?>
+                                                    <?php if ($current_admin_id != $user['id']): // Don't show action buttons for the admin's own account ?>
                                                         <a href="<?php echo BASE_PATH; ?>admin/edit_user.php?user_id=<?php echo $user['id']; ?>" class="btn btn-sm btn-outline-primary">Edit Role</a>
-                                                        <!-- Placeholder -->
-                                                        <a href="#" class="btn btn-sm btn-outline-danger">Delete</a>  
+                                                        
+                                                        <a href="<?php echo BASE_PATH; ?>admin/manage_users.php?action=delete_user&user_id=<?php echo $user['id']; ?>" 
+                                                           class="btn btn-sm btn-outline-danger" 
+                                                           onclick="return confirm('Are you sure you want to delete the user \'<?php echo htmlspecialchars(addslashes($user['username'])); ?>\'? This action cannot be undone.');">Delete</a>
                                                     <?php else: ?>
                                                         <span class="text-muted">(Your Account)</span>
                                                     <?php endif; ?>
