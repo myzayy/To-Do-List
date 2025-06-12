@@ -42,7 +42,7 @@ if (!isset($_SESSION['user_id'])) {
                         
                         <h3 class="tm-text-title" style="margin-top: 30px;">Future Admin Links:</h3>
                         <ul>
-                            <li><a href="#">Manage Users</a> (Not implemented yet)</li>
+                            <li><a href="manage_users.php">Manage Users</a></li>
                             <li><a href="#">Manage All Tasks</a> (Not implemented yet)</li>
                             <li><a href="#">Site Settings</a> (Not implemented yet)</li>
                         </ul>
