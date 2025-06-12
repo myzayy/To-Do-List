@@ -5,12 +5,26 @@ require_once '../config/connect.php'; // Database connection
 
 // Check if user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    // If not an admin, redirect to the main site index.
     header("Location: " . BASE_PATH . "index.php");
     exit();
 }
 
-// Fetch all users from the database (READ operation for users)
+// Display messages passed via session (from edit_user.php, etc.)
+$action_message = '';
+if (isset($_SESSION['user_action_success_message'])) {
+    $action_message = '<div class="alert alert-success" role="alert">' . htmlspecialchars($_SESSION['user_action_success_message']) . '</div>';
+    unset($_SESSION['user_action_success_message']);
+}
+if (isset($_SESSION['user_action_error_message'])) {
+    $action_message = '<div class="alert alert-danger" role="alert">' . htmlspecialchars($_SESSION['user_action_error_message']) . '</div>';
+    unset($_SESSION['user_action_error_message']);
+}
+if (isset($_SESSION['user_action_info_message'])) {
+    $action_message = '<div class="alert alert-info" role="alert">' . htmlspecialchars($_SESSION['user_action_info_message']) . '</div>';
+    unset($_SESSION['user_action_info_message']);
+}
+
+// Fetch all users from the database
 $users = [];
 $user_list_error = '';
 $sql = "SELECT id, username, role, created_at FROM users ORDER BY created_at DESC";
@@ -28,7 +42,7 @@ if ($result) {
 ?>
 <!DOCTYPE html>
 <html lang="uk">
-<?php include '../parts/header.php'; // Path from admin/ directory ?>
+<?php include '../parts/header.php'; ?>
 <body>
     <div id="loader-wrapper">
         <div id="loader"></div>
@@ -37,7 +51,7 @@ if ($result) {
     </div>
 
     <div class="cd-hero">
-        <?php include '../parts/navigation.php'; // Path from admin/ directory ?>
+        <?php include '../parts/navigation.php'; ?>
 
         <div class="container-fluid tm-page-pad">
             <div class="row">
@@ -49,6 +63,8 @@ if ($result) {
                             <a href="<?php echo BASE_PATH; ?>admin/index.php">Back to Admin Panel</a>
                         </p>
                         
+                        <?php echo $action_message; // Display flash messages from session ?>
+
                         <?php if (!empty($user_list_error)): ?>
                             <div class="alert alert-danger" role="alert"><?php echo $user_list_error; ?></div>
                         <?php elseif (empty($users)): ?>
@@ -77,9 +93,13 @@ if ($result) {
                                                 </td>
                                                 <td><?php echo date("Y-m-d H:i", strtotime($user['created_at'])); ?></td>
                                                 <td>
-                                                    <!-- Placeholder for Edit/Delete user buttons -->
-                                                    <a href="#" class="btn btn-sm btn-outline-primary">Edit Role</a>
-                                                    <a href="#" class="btn btn-sm btn-outline-danger">Delete</a>
+                                                    <?php if ($_SESSION['user_id'] !== $user['id']): // Don't show action buttons for the admin's own account ?>
+                                                        <a href="<?php echo BASE_PATH; ?>admin/edit_user.php?user_id=<?php echo $user['id']; ?>" class="btn btn-sm btn-outline-primary">Edit Role</a>
+                                                        <!-- Placeholder -->
+                                                        <a href="#" class="btn btn-sm btn-outline-danger">Delete</a>  
+                                                    <?php else: ?>
+                                                        <span class="text-muted">(Your Account)</span>
+                                                    <?php endif; ?>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -100,7 +120,7 @@ if ($result) {
     <script>
         $(window).on('load', function(){
             $('body').addClass('loaded');
-
+            
             $('#tmNavbar .nav-link').on('click', function(){
                 if ($('.navbar-toggler').is(':visible') && $('#tmNavbar').hasClass('show')) {
                     $('#tmNavbar').collapse('hide');
