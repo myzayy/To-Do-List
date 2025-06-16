@@ -10,11 +10,51 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
     exit();
 }
 
+$action_message = ''; // To store feedback messages for the admin
+
+// Handle a delete task action (for admins)
+if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['action']) && $_GET['action'] == 'delete_task' && isset($_GET['task_id'])) {
+    
+    $task_to_delete_id = intval($_GET['task_id']);
+
+    // Prepare and execute the delete statement.
+    // Note: Admin can delete any task, so there is NO "AND user_id = ?" check.
+    $stmt_delete = $conn->prepare("DELETE FROM tasks WHERE id = ?");
+    if ($stmt_delete) {
+        $stmt_delete->bind_param("i", $task_to_delete_id);
+        if ($stmt_delete->execute()) {
+            if ($stmt_delete->affected_rows > 0) {
+                $_SESSION['admin_task_action_success_message'] = 'Task has been deleted successfully.';
+            } else {
+                $_SESSION['admin_task_action_error_message'] = 'Task not found or could not be deleted.';
+            }
+        } else {
+            $_SESSION['admin_task_action_error_message'] = 'Error executing deletion: ' . htmlspecialchars($stmt_delete->error);
+        }
+        $stmt_delete->close();
+    } else {
+        $_SESSION['admin_task_action_error_message'] = 'Error preparing delete statement: ' . htmlspecialchars($conn->error);
+    }
+    
+    // Redirect back to the task list to show the message and refresh the list
+    header("Location: " . BASE_PATH . "admin/manage_tasks.php");
+    exit();
+}
+
+
+// Display messages passed via session
+if (isset($_SESSION['admin_task_action_success_message'])) {
+    $action_message = '<div class="alert alert-success" role="alert">' . htmlspecialchars($_SESSION['admin_task_action_success_message']) . '</div>';
+    unset($_SESSION['admin_task_action_success_message']);
+}
+if (isset($_SESSION['admin_task_action_error_message'])) {
+    $action_message = '<div class="alert alert-danger" role="alert">' . htmlspecialchars($_SESSION['admin_task_action_error_message']) . '</div>';
+    unset($_SESSION['admin_task_action_error_message']);
+}
+
 // Fetch all tasks from all users, joining with the users table to get usernames
 $all_tasks = [];
 $task_list_error = '';
-
-// SQL query with a JOIN to get username for each task
 $sql = "SELECT
             tasks.id,
             tasks.title,
@@ -35,12 +75,10 @@ if ($result) {
 } else {
     $task_list_error = "Error fetching tasks: " . htmlspecialchars($conn->error);
 }
-
-// $conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="uk">
-<?php include '../parts/header.php'; // Path from admin/ directory ?>
+<?php include '../parts/header.php'; ?>
 <body>
     <div id="loader-wrapper">
         <div id="loader"></div>
@@ -49,18 +87,19 @@ if ($result) {
     </div>
 
     <div class="cd-hero">
-        <?php include '../parts/navigation.php'; // Path from admin/ directory ?>
+        <?php include '../parts/navigation.php'; ?>
 
         <div class="container-fluid tm-page-pad">
             <div class="row">
-                <!-- Use a wider column for the table -->
-                <div class="col-md-12"> 
+                <div class="col-md-12">
                     <div class="tm-bg-white-translucent text-xs-left tm-textbox tm-textbox-padding">
                         <h2 class="tm-text-title">Manage All Tasks</h2>
                         <p class="tm-text">
                             This page lists all tasks from all users on the site.
                             <a href="<?php echo BASE_PATH; ?>admin/index.php">Back to Admin Panel</a>
                         </p>
+
+                        <?php echo $action_message; // Display flash messages from session ?>
                         
                         <?php if (!empty($task_list_error)): ?>
                             <div class="alert alert-danger" role="alert"><?php echo $task_list_error; ?></div>
@@ -94,9 +133,12 @@ if ($result) {
                                                 <td><?php echo date("Y-m-d H:i", strtotime($task['created_at'])); ?></td>
                                                 <td><?php echo htmlspecialchars($task['due_date'] ? date("Y-m-d", strtotime($task['due_date'])) : 'N/A'); ?></td>
                                                 <td>
-                                                    <!-- Placeholder for Admin Edit/Delete task buttons -->
                                                     <a href="#" class="btn btn-sm btn-outline-primary">Edit</a>
-                                                    <a href="#" class="btn btn-sm btn-outline-danger">Delete</a>
+                                                    
+                                                    <!-- Functional Delete link for admin -->
+                                                    <a href="<?php echo BASE_PATH; ?>admin/manage_tasks.php?action=delete_task&task_id=<?php echo $task['id']; ?>" 
+                                                       class="btn btn-sm btn-outline-danger" 
+                                                       onclick="return confirm('Are you sure you want to delete this task (ID: <?php echo $task['id']; ?>)? This action belongs to user \'<?php echo htmlspecialchars(addslashes($task['username'])); ?>\'.');">Delete</a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
