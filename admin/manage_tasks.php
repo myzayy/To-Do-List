@@ -133,7 +133,7 @@ if ($result) {
                                                 <td><?php echo date("Y-m-d H:i", strtotime($task['created_at'])); ?></td>
                                                 <td><?php echo htmlspecialchars($task['due_date'] ? date("Y-m-d", strtotime($task['due_date'])) : 'N/A'); ?></td>
                                                 <td>
-                                                    <a href="#" class="btn btn-sm btn-outline-primary">Edit</a>
+                                                    <a href="<?php echo BASE_PATH; ?>admin/edit_task.php?task_id=<?php echo $task['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
                                                     
                                                     <!-- Functional Delete link for admin -->
                                                     <a href="<?php echo BASE_PATH; ?>admin/manage_tasks.php?action=delete_task&task_id=<?php echo $task['id']; ?>" 
